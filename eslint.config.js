@@ -1,56 +1,73 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import eslintPluginJsonc from 'eslint-plugin-jsonc';
-import jsoncParser from 'jsonc-eslint-parser';
-import eslintPluginYml from 'eslint-plugin-yml';
-import ymlParser from 'yaml-eslint-parser';
-import eslintPluginHtml from 'eslint-plugin-html';
-import eslintConfigPrettier from 'eslint-config-prettier';
+import js from "@eslint/js";
+import globals from "globals";
+import eslintPluginJsonc from "eslint-plugin-jsonc";
+import jsoncParser from "jsonc-eslint-parser";
+import eslintPluginYml from "eslint-plugin-yml";
+import ymlParser from "yaml-eslint-parser";
+import eslintPluginHtml from "eslint-plugin-html";
+import eslintConfigPrettier from "eslint-config-prettier";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 
 export default [
   {
     ignores: [
-      '**/*.md',
-      'dist/**',
-      'build/**',
-      '**/*.css',
-      '**/*.scss',
-      'warp.json',
-      'hiddify/**',
-      '.github/**',
-      'edge/waste/**',
-      'edge/unite.js',
-      '**/clash-12.**',
-      'sub/ProxyIP.md',
-      'node_modules/**',
-      'DNS over HTTPS/**',
-      'package-lock.json',
-      'edge/all-in-one.js',
-      'edge/LoadBalance.js',
-      'real address generator/**',
-      'boringtun-boringtun-cli-0.5.2/**',
+      "**/*.md",
+      "dist/**",
+      "build/**",
+      "**/*.css",
+      "**/*.scss",
+      "warp.json",
+      "hiddify/**",
+      ".github/**",
+      "edge/waste/**",
+      "edge/unite.js",
+      "**/clash-12.**",
+      "sub/ProxyIP.md",
+      "node_modules/**",
+      "DNS over HTTPS/**",
+      "package-lock.json",
+      "sub/clash-meta.yml",
+      "edge/all-in-one.js",
+      "edge/LoadBalance.js",
+      "sub/ProxyIP-Daily.md",
+      "real address generator/**",
+      "boringtun-boringtun-cli-0.5.2/**",
     ],
   },
 
-  js.configs.recommended,
+  // ➕ JavaScript
   {
-    // ⚙️ JavaScript
-    files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
+    files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: 'module',
+      sourceType: "module",
       globals: {
         ...globals.node,
         ...globals.browser,
+        fetch: "readonly",
+        Response: "readonly",
+        URLSearchParams: "readonly",
+        btoa: "readonly",
+        atob: "readonly",
+        Headers: "readonly",
+        Blob: "readonly",
+        TextDecoder: "readonly",
+        TransformStream: "readonly",
+        WritableStream: "readonly",
+        ReadableStream: "readonly",
+        WebSocketPair: "readonly",
+        addEventListener: "readonly",
+        console: "readonly",
+        URL: "readonly",
       },
     },
     rules: {
-      'no-unused-vars': 'warn',
-      'no-console': 'off',
-      semi: ['error', 'always'],
-      quotes: ['error', 'single'],
-      'no-irregular-whitespace': [
-        'error',
+      curly: ["error", "all"],
+      eqeqeq: ["error", "always"],
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "no-irregular-whitespace": [
+        "error",
         {
           skipStrings: true,
           skipComments: false,
@@ -58,10 +75,57 @@ export default [
           skipTemplates: true,
         },
       ],
+      "no-undef": "error",
+      "no-unused-vars": "warn",
+      ...eslintConfigPrettier.rules,
     },
+  },
 
-    // ⚙️ JSON, JSONC, JSON5
-    files: ['**/*.json', '**/*.jsonc', '**/*.json5'],
+  // ➕ TypeScript
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parser: tsParser,
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+        fetch: "readonly",
+        Response: "readonly",
+        URLSearchParams: "readonly",
+        btoa: "readonly",
+        atob: "readonly",
+        Headers: "readonly",
+        Blob: "readonly",
+        TextDecoder: "readonly",
+        TransformStream: "readonly",
+        WritableStream: "readonly",
+        ReadableStream: "readonly",
+        WebSocketPair: "readonly",
+        addEventListener: "readonly",
+        console: "readonly",
+        URL: "readonly",
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
+      ...tseslint.configs.recommended.rules,
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/explicit-function-return-type": "warn",
+      eqeqeq: ["error", "always"],
+      "no-undef": "off",
+      ...eslintConfigPrettier.rules,
+    },
+  },
+
+  // ➕ JSON — JSONC — JSON5
+  {
+    files: ["**/*.json", "**/*.jsonc", "**/*.json5"],
     plugins: {
       jsonc: eslintPluginJsonc,
     },
@@ -69,14 +133,15 @@ export default [
       parser: jsoncParser,
     },
     rules: {
-      ...eslintPluginJsonc.configs['recommended-with-jsonc'].rules,
-      'jsonc/sort-keys': 'error',
+      ...eslintPluginJsonc.configs["recommended-with-jsonc"].rules,
+      "jsonc/sort-keys": "error",
+      ...eslintConfigPrettier.rules,
     },
   },
 
+  // ➕ YAML
   {
-    // ⚙️ YAML
-    files: ['**/*.yaml', '**/*.yml'],
+    files: ["**/*.yaml", "**/*.yml"],
     plugins: {
       yml: eslintPluginYml,
     },
@@ -86,18 +151,21 @@ export default [
     rules: {
       ...eslintPluginYml.configs.standard.rules,
       ...eslintPluginYml.configs.prettier.rules,
+      ...eslintConfigPrettier.rules,
     },
   },
 
+  // ➕ HTML — For linting <script> blocks
   {
-    // ⚙️ HTML (For linting inside <script>)
-    files: ['**/*.html'],
+    files: ["**/*.html"],
     plugins: {
       html: eslintPluginHtml,
     },
     languageOptions: {
       globals: { ...globals.browser },
     },
-    rules: {},
+    rules: {
+      ...eslintConfigPrettier.rules,
+    },
   },
 ];

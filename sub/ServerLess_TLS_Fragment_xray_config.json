@@ -111,8 +111,8 @@
         "security": "tls",
         "tlsSettings": {
           "allowInsecure": false,
-          "alpn": ["h2", "http/1.1"],
-          "fingerprint": "randomized",
+          "alpn": ["h3", "h2", "http/1.1"],
+          "fingerprint": "chrome",
           "publicKey": "",
           "serverName": "google.com",
           "shortId": "",
